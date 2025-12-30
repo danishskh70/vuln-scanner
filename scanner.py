@@ -6,6 +6,9 @@ from datetime import datetime
 import os
 import pdfkit
 
+# =============================
+# PDF CONFIG (Windows)
+# =============================
 config = pdfkit.configuration(
     wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 )
@@ -36,6 +39,12 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
+# =============================
+# REPORT DIRECTORY
+# =============================
+REPORT_DIR = "reports"
+os.makedirs(REPORT_DIR, exist_ok=True)
 
 # =============================
 # SUBNET DETECTION
@@ -75,7 +84,7 @@ OUTDATED_VERSIONS = {
 }
 
 def calculate_cvss(port, service_name, version):
-    score = 2.0  # base low risk
+    score = 2.0  # base risk
 
     if port in WEAK_SERVICES:
         score = max(score, WEAK_SERVICES[port][1])
@@ -85,11 +94,11 @@ def calculate_cvss(port, service_name, version):
 
     if service_name and version:
         service_name = service_name.lower()
-        for s in OUTDATED_VERSIONS:
-            if s in service_name:
+        for svc in OUTDATED_VERSIONS:
+            if svc in service_name:
                 try:
-                    if version < OUTDATED_VERSIONS[s][0]:
-                        score = max(score, OUTDATED_VERSIONS[s][1])
+                    if version < OUTDATED_VERSIONS[svc][0]:
+                        score = max(score, OUTDATED_VERSIONS[svc][1])
                 except:
                     pass
 
@@ -123,8 +132,8 @@ for host in scanner.all_hosts():
         for port in scanner[host][proto]:
             service = scanner[host][proto][port]
 
-            service_name = service.get("name")
-            version = service.get("version")
+            service_name = service.get("name", "")
+            version = service.get("version", "")
 
             cvss = calculate_cvss(port, service_name, version)
             severity = severity_from_cvss(cvss)
@@ -141,7 +150,7 @@ for host in scanner.all_hosts():
 # =============================
 # HTML REPORT
 # =============================
-html = f"""
+html_content = f"""
 <html>
 <head>
 <title>Vulnerability Scan Report</title>
@@ -174,7 +183,7 @@ th {{ background-color: #f2f2f2; }}
 """
 
 for r in results:
-    html += f"""
+    html_content += f"""
 <tr class="{r['severity']}">
 <td>{r['host']}</td>
 <td>{r['port']}</td>
@@ -185,15 +194,15 @@ for r in results:
 </tr>
 """
 
-html += """
+html_content += """
 </table>
 </body>
 </html>
 """
 
-html_file = f"{output_name}.html"
+html_file = os.path.join(REPORT_DIR, f"{output_name}.html")
 with open(html_file, "w") as f:
-    f.write(html)
+    f.write(html_content)
 
 print(f"[+] HTML report generated: {html_file}")
 
@@ -202,9 +211,8 @@ print(f"[+] HTML report generated: {html_file}")
 # =============================
 if args.pdf:
     try:
-        import pdfkit
-        pdf_file = f"{output_name}.pdf"
-        pdfkit.from_file("scan_report.html", "scan_report.pdf", configuration=config)
+        pdf_file = os.path.join(REPORT_DIR, f"{output_name}.pdf")
+        pdfkit.from_file(html_file, pdf_file, configuration=config)
         print(f"[+] PDF report generated: {pdf_file}")
     except Exception as e:
         print("[-] PDF generation failed:", e)
