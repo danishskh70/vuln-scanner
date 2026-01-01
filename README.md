@@ -18,6 +18,16 @@ It scans a local subnet or target IP, detects risky services, assigns CVSS‑sty
   * PDF report (optional)
 * Clean project structure (reports/ directory)
 
+  ## 📌  Why This Tool Exists
+-------------------
+Most vulnerability scanners are heavy, commercial, or cloud-based.
+This tool focuses on:
+- Local environments
+- Fast visibility
+- Clear prioritization
+- Offline report generation
+
+
 ## 🧱 Tech Stack
 
 * Python 3.x
@@ -30,12 +40,12 @@ It scans a local subnet or target IP, detects risky services, assigns CVSS‑sty
 
 ```
 vuln-scanner/
-│
-├── scanner.py
-├── reports/
-│   ├── scan_report.html
-│   └── scan_report.pdf
+├── scanner.py        # Main scanner logic
+├── reports/          # Generated scan reports
+│   ├── *.html
+│   └── *.pdf
 └── README.md
+
 ```
 
 ## ⚙️ Requirements
@@ -68,7 +78,15 @@ https://wkhtmltopdf.org/downloads.html
 Default install path used in code:
 
 ```
-C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe
+wkhtmltopdf Configuration
+-------------------------
+The tool assumes wkhtmltopdf is available in system PATH.
+If installed elsewhere, update the path inside scanner.py.
+
+Tested on:
+- Windows
+- Linux (Ubuntu)
+
 ```
 
 ## 🚀 Usage
@@ -142,7 +160,30 @@ reports/office_scan.pdf
    * Critical
 6. Generates professional reports
 
+## Default behavior scans:
+```
+192.168.1.0/24
+```
+
+## Sample Report
+-------------
+Generated reports include:
+- Target summary
+- Open ports & services
+- Risk explanation
+- Severity classification
+
+Example:
+reports/scan_report.html
+reports/scan_report.pdf
+
+
 ## 📊 Severity Levels
+
+### Note on CVSS Scoring
+-------------------
+This tool uses a simplified, rule-based CVSS-style scoring system.
+It is NOT a full CVSS v3.1 implementation.
 
 | CVSS Score | Severity  |
 |------------|-----------|
@@ -150,6 +191,14 @@ reports/office_scan.pdf
 | 7.0 – 8.9  | High     |
 | 4.0 – 6.9  | Medium   |
 | < 4.0      | Low      |
+
+Scores are calculated based on:
+- Service type risk
+- Port exposure
+- Known weak protocols
+- Version age indicators
+
+The goal is prioritization, not formal compliance.
 
 ## 🔒 Legal Disclaimer
 This tool is intended only for educational purposes and authorized testing.  
