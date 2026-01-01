@@ -18,8 +18,10 @@ It scans a local subnet or target IP, detects risky services, assigns CVSS‑sty
   * PDF report (optional)
 * Clean project structure (reports/ directory)
 
-  ## 📌  Why This Tool Exists
 -------------------
+
+## 📌  Why This Tool Exists
+
 Most vulnerability scanners are heavy, commercial, or cloud-based.
 This tool focuses on:
 - Local environments
@@ -77,9 +79,10 @@ Download from:
 https://wkhtmltopdf.org/downloads.html  
 Default install path used in code:
 
+
+### wkhtmltopdf Configuration
+ -------------------
 ```
-wkhtmltopdf Configuration
--------------------------
 The tool assumes wkhtmltopdf is available in system PATH.
 If installed elsewhere, update the path inside scanner.py.
 
